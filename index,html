@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ro" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imobiliare Cluj-Napoca - Portal Oficial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 flex flex-col justify-between font-sans antialiased">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="resetToHome()">
+                <div class="w-12 h-12 bg-brand-600 rounded-xl flex items-center justify-center text-white text-2xl shadow-md">
+                    <i class="fa-solid fa-city"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-900">Imobiliare Cluj</h1>
+                    <p class="text-xs text-slate-500 font-medium">Portal Independent & Comunitar</p>
+                </div>
+            </div>
+
+            <nav class="hidden md:flex items-center space-x-1 font-medium text-sm">
+                <button onclick="filterByType('all')" class="nav-btn px-4 py-2 rounded-lg text-slate-600 hover:text-brand-600 hover:bg-slate-100 transition active-tab">Toate Anunțurile</button>
+                <button onclick="filterByCategory('vanzare')" class="nav-btn px-4 py-2 rounded-lg text-slate-600 hover:text-brand-600 hover:bg-slate-100 transition">Vânzări</button>
+                <button onclick="filterByCategory('inchiriere')" class="nav-btn px-4 py-2 rounded-lg text-slate-600 hover:text-brand-600 hover:bg-slate-100 transition">Închirieri</button>
+            </nav>
+
+            <div class="flex items-center space-x-3">
+                <button onclick="openAddModal()" class="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-xl font-medium text-sm shadow-md hover:shadow-lg transition flex items-center space-x-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Adaugă Anunț</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <!-- Hero & Filter Bar -->
+        <div class="mb-10 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+                <h2 id="section-title" class="text-3xl font-extrabold text-slate-900 tracking-tight">Oferte Imobiliare Active</h2>
+                <p class="text-slate-500 mt-1">Explorează cele mai noi oportunități imobiliare din Cluj-Napoca.</p>
+            </div>
+            
+            <!-- Category Tabs Buttons -->
+            <div class="flex flex-wrap justify-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                <button onclick="filterByType('all')" class="filter-tab px-4 py-2 rounded-xl text-sm font-semibold bg-brand-600 text-white transition shadow-sm">Toate</button>
+                <button onclick="filterByType('Apartament')" class="filter-tab px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">Apartamente</button>
+                <button onclick="filterByType('Casa')" class="filter-tab px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">Case</button>
+                <button onclick="filterByType('Teren')" class="filter-tab px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">Terenuri</button>
+            </div>
+        </div>
+
+        <!-- Property Grid -->
+        <div id="property-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Cards will be injected dynamically via JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden text-center py-20">
+            <div class="w-20 h-20 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto text-3xl mb-4">
+                <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-700">Nu am găsit anunțuri în această categorie</h3>
+            <p class="text-slate-500 text-sm mt-1">Încearcă să schimbi filtrele sau adaugă primul anunț!</p>
+        </div>
+    </main>
+
+    <!-- Modal Adăugare Anunț -->
+    <div id="add-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-100 transform transition-all">
+            <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+                <h3 class="font-bold text-lg"><i class="fa-solid fa-house-chimney-user mr-2 text-brand-500"></i> Adaugă Anunț Nou</h3>
+                <button onclick="closeAddModal()" class="text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form id="add-form" onsubmit="handleNewListing(event)" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Tip Tranzacție</label>
+                        <select id="form-category" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none">
+                            <option value="vanzare">Vânzare</option>
+                            <option value="inchiriere">Închiriere</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Tip Imobil</label>
+                        <select id="form-type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none">
+                            <option value="Apartament">Apartament</option>
+                            <option value="Casa">Casă</option>
+                            <option value="Teren">Teren</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Titlu Anunț</label>
+                    <input type="text" id="form-title" required placeholder="ex: Apartament 3 camere ultracentral" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Preț (€)</label>
+                        <input type="number" id="form-price" required placeholder="ex: 125000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Suprafață (mp)</label>
+                        <input type="number" id="form-surface" required placeholder="ex: 75" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Cartier / Zonă în Cluj</label>
+                    <input type="text" id="form-location" required placeholder="ex: Mănăștur, Centru, Gheorgheni" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Link Imagine (URL)</label>
+                    <input type="url" id="form-image" required placeholder="https://images.unsplash.com/..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+                <div class="pt-4 flex items-center justify-end space-x-3">
+                    <button type="button" onclick="closeAddModal()" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">Anulează</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-700 shadow-md transition">Publică Anunțul</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-16 py-8 text-center text-sm text-slate-500">
+        <p>&copy; 2026 Portal Imobiliar Cluj-Napoca. Proiect open-source comunitar.</p>
+    </footer>
+
+    <!-- JavaScript logic -->
+    <script>
+        let properties = [
+            { id: 1, title: "Apartament Modern 3 Camere Central", type: "Apartament", category: "vanzare", price: 145000, surface: 78, location: "Centru, Cluj-Napoca", image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80" },
+            { id: 2, title: "Casă Individuală cu Grădină Sopor", type: "Casa", category: "vanzare", price: 295000, surface: 160, location: "Sopor / Gheorgheni", image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80" },
+            { id: 3, title: "Teren Pentru Construcție Casă", type: "Teren", category: "vanzare", price: 85000, surface: 500, location: "Făget, Cluj-Napoca", image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80" },
+            { id: 4, title: "Garsonieră Utilată Complet Mărăști", type: "Apartament", category: "inchiriere", price: 380, surface: 32, location: "Mărăști, Cluj-Napoca", image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80" },
+            { id: 5, title: "Apartament 2 Camere Zorilor", type: "Apartament", category: "inchiriere", price: 550, surface: 56, location: "Zorilor, Cluj-Napoca", image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80" },
+            { id: 6, title: "Casă Tip Duplex Florești", type: "Casa", category: "inchiriere", price: 850, surface: 120, location: "Florești (Limită Cluj)", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80" }
+        ];
+
+        let currentFilterType = 'all';
+        let currentCategory = 'all';
+
+        function renderProperties() {
+            const grid = document.getElementById('property-grid');
+            const emptyState = document.getElementById('empty-state');
+            grid.innerHTML = '';
+
+            let filtered = properties.filter(p => {
+                let matchType = (currentFilterType === 'all' || p.type === currentFilterType);
+                let matchCat = (currentCategory === 'all' || p.category === currentCategory);
+                return matchType && matchCat;
+            });
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            filtered.forEach(p => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition flex flex-col justify-between group";
+                card.innerHTML = `
+                    <div>
+                        <div class="relative h-52 overflow-hidden bg-slate-100">
+                            <img src="${p.image}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <span class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-lg">
+                                ${p.category === 'vanzare' ? 'Vânzare' : 'Închiriere'}
+                            </span>
+                            <span class="absolute top-3 right-3 bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-lg">
+                                ${p.type}
+                            </span>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex items-center text-slate-400 text-xs font-semibold mb-2">
+                                <i class="fa-solid fa-location-dot mr-1 text-brand-600"></i> ${p.location}
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-lg line-clamp-1 group-hover:text-brand-600 transition">${p.title}</h3>
+                            <div class="mt-4 flex items-center justify-between">
+                                <span class="text-2xl font-black text-slate-900">${p.price.toLocaleString()} €</span>
+                                <span class="text-sm text-slate-500 font-medium"><i class="fa-solid fa-ruler-combined mr-1"></i> ${p.surface} mp</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-5 pb-5 pt-0">
+                        <button onclick="alert('Detalii pentru: ${p.title}')" class="w-full bg-slate-100 hover:bg-brand-600 hover:text-white text-slate-700 font-semibold py-2.5 rounded-xl text-sm transition">
+                            Vezi Detalii
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterByType(type) {
+            currentFilterType = type;
+            currentCategory = 'all';
+            updateActiveTabs();
+            renderProperties();
+        }
+
+        function filterByCategory(cat) {
+            currentCategory = cat;
+            currentFilterType = 'all';
+            document.getElementById('section-title').innerText = cat === 'vanzare' ? 'Oferte Vânzare Cluj' : 'Oferte Închiriere Cluj';
+            updateActiveTabs();
+            renderProperties();
+        }
+
+        function resetToHome() {
+            currentFilterType = 'all';
+            currentCategory = 'all';
+            document.getElementById('section-title').innerText = "Oferte Imobiliare Active";
+            updateActiveTabs();
+            renderProperties();
+        }
+
+        function updateActiveTabs() {
+            document.querySelectorAll('.filter-tab').forEach(btn => {
+                if (btn.innerText.includes(currentFilterType === 'all' ? 'Toate' : currentFilterType)) {
+                    btn.className = "filter-tab px-4 py-2 rounded-xl text-sm font-semibold bg-brand-600 text-white transition shadow-sm";
+                } else {
+                    btn.className = "filter-tab px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition";
+                }
+            });
+        }
+
+        function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); }
+        function closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); }
+
+        function handleNewListing(e) {
+            e.preventDefault();
+            const newObj = {
+                id: properties.length + 1,
+                title: document.getElementById('form-title').value,
+                type: document.getElementById('form-type').value,
+                category: document.getElementById('form-category').value,
+                price: Number(document.getElementById('form-price').value),
+                surface: Number(document.getElementById('form-surface').value),
+                location: document.getElementById('form-location').value,
+                image: document.getElementById('form-image').value
+            };
+            properties.unshift(newObj);
+            closeAddModal();
+            renderProperties();
+            document.getElementById('add-form').reset();
+            alert('Anunțul a fost publicat cu succes!');
+        }
+
+        renderProperties();
+    </script>
+</body>
+</html>
